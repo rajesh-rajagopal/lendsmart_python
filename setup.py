@@ -31,7 +31,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='2.0.0',
+    version='0.3.0',
 
     description='The official python SDK for LendSmart API v1',
     long_description=long_description,
@@ -53,7 +53,7 @@ setup(
         #   4 - Beta
         #   5 - Production/Stable
         # This is staying in sync with the api's status
-        'Development Status :: 1 - Beta',
+        'Development Status :: 3 - Alpha',
 
         # Indicate who your project is intended for
         'Intended Audience :: Developers',
@@ -72,6 +72,8 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
 
     # What does your project relate to?

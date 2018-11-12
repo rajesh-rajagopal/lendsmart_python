@@ -6,17 +6,20 @@ venv:
 
 install: venv
 	. venv/bin/activate; pip install .
+	. venv/bin/activate; pip install tox
+	. venv/bin/activate; pip install twine
 
 test: install
 	. venv/bin/activate; \
   tox
 
-release:
-	. venv/bin/activate; python setup.py sdist upload
-	. venv/bin/activate; python setup.py bdist_wheel upload
-
+release: install
+	. venv/bin/activate; python setup.py sdist bdist_wheel
+	. venv/bin/activate; twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+	. venv/bin/activate; twine upload dist/*
 
 clean:
+	rm -rf dist
 	rm -rf venv
 
 nopyc:

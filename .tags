@@ -1,0 +1,25 @@
+!_TAG_FILE_SORTED	2	/0=unsorted, 1=sorted, 2=foldcase/
+-python	/home/ram/code/lendsmart/py/lendsmart_python/Makefile	/^	virtualenv --python=python venv$/;"	m	language:Make
+author	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^    author='Smart Labs',$/;"	v	language:Python
+author_email	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^    author_email='infos@lendsmart.ai',$/;"	v	language:Python
+classifiers	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^    classifiers=[$/;"	v	language:Python
+description	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^    description='The official python SDK for LendSmart API v1',$/;"	v	language:Python
+find_packages	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^from setuptools import find_packages, setup$/;"	i	language:Python
+get_test_suite	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^def get_test_suite():$/;"	f	language:Python
+here	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^here = path.abspath(path.dirname(__file__))$/;"	v	language:Python
+install_requires	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^    install_requires=[$/;"	v	language:Python
+keywords	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^    keywords='prediction ai lendsmart',$/;"	v	language:Python
+license	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^    license='MIT',$/;"	v	language:Python
+long_description	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^    long_description = f.read()$/;"	v	language:Python
+long_description	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^    long_description=long_description,$/;"	v	language:Python
+name	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^    name='lendsmart_api',$/;"	v	language:Python
+open	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^from codecs import open$/;"	i	language:Python
+packages	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^    packages=find_packages(exclude=['contrib', 'tests']),$/;"	v	language:Python
+path	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^from os import path$/;"	i	language:Python
+setup	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^from setuptools import find_packages, setup$/;"	i	language:Python
+sys	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^import sys$/;"	i	language:Python
+TestLoader	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^from unittest import TestLoader$/;"	i	language:Python
+tests_require	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^    tests_require=[$/;"	v	language:Python
+test_suite	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^    test_suite = 'setup.get_test_suite'$/;"	v	language:Python
+url	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^    url='https:\/\/github.com\/lendsmart\/lendsmart_python',$/;"	v	language:Python
+version	/home/ram/code/lendsmart/py/lendsmart_python/setup.py	/^    version='0.3.0',$/;"	v	language:Python
