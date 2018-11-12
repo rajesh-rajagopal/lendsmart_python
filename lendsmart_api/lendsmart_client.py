@@ -8,7 +8,7 @@ import pkg_resources
 import requests
 
 from lendsmart_api.errors import ApiError, UnexpectedResponseError
-from lendsmart_api.objects import PredictionChunk, PredictionWorkflow
+from lendsmart_api.objects import PredictionChunk, PredictionWorkflow, Base
 from lendsmart_api.objects.filtering import Filter
 
 from .common import load_and_validate_keys, SSH_KEY_TYPES
@@ -45,16 +45,16 @@ class PredictionGroup(Group):
         :raises UnexpectedResponseError: If the returned data from the api does
             not look as expected.
         """
-        result = self.client.post('/prediction_chunks', data={
-            "label": label
-        })
+        result = self.client.post('/prediction_chunks', data=label)
 
         if not 'id' in result:
             raise UnexpectedResponseError('Unexpected response when creating Longivew '
-                'Client!', json=result)
+                                          'Client!', json=result)
+        print("chunck result :",result)
 
         c = PredictionChunk(self.client, result['id'], result)
         return c
+
     def workflows(self, *filters):
         """
         Requests and returns a list of PredictionWorkflow on your
@@ -62,7 +62,7 @@ class PredictionGroup(Group):
         """
         return self.client._get_and_filter(PredictionWorkflow, *filters)
 
-    def workflow_create(self, label=None):
+    def workflow_create(self, data=None):
         """
         Creates a new PredictionWorkflow, with given inputs.
 
@@ -75,21 +75,18 @@ class PredictionGroup(Group):
         :raises UnexpectedResponseError: If the returned data from the api does
             not look as expected.
         """
-        result = self.client.post('/prediction_workflows', data={
-            "label": label
-        })
+        result = self.client.post('/prediction_workflows', data=data)
 
         if not 'id' in result:
             raise UnexpectedResponseError('Unexpected response when creating Longivew '
-                'Client!', json=result)
+                                          'Client!', json=result)
 
         c = PredictionWorkflow(self.client, result['id'], result)
         return c
 
 
-
 class LendsmartClient:
-    def __init__(self, token, base_url="https://api.lendsmart/api/v1", user_agent=None):
+    def __init__(self, token, base_url="https://api.lendsmart.ai/api/v1", user_agent=None):
         """
         The main interface to the Lendsmart API.
 
@@ -118,9 +115,9 @@ class LendsmartClient:
     @property
     def _user_agent(self):
         return '{}python-lendsmart_api/{} {}'.format(
-                '{} '.format(self._add_user_agent) if self._add_user_agent else '',
-                package_version,
-                requests.utils.default_user_agent()
+            '{} '.format(self._add_user_agent) if self._add_user_agent else '',
+            package_version,
+            requests.utils.default_user_agent()
         )
 
     def load(self, target_type, target_id, target_parent_id=None):
@@ -151,7 +148,8 @@ class LendsmartClient:
         :rtype: target_type
         :raise ApiError: if the requested object could not be loaded.
         """
-        result = target_type.make_instance(target_id, self, parent_id=target_parent_id)
+        result = target_type.make_instance(
+            target_id, self, parent_id=target_parent_id)
         result._api_get()
 
         return result
@@ -171,7 +169,7 @@ class LendsmartClient:
             endpoint = endpoint.format(**vars(model))
         url = '{}{}'.format(self.base_url, endpoint)
         headers = {
-            'Authorization': "Bearer {}".format(self.token),
+            # 'Authorization': "Bearer {}".format(self.token),
             'Content-Type': 'application/json',
             'User-Agent': self._user_agent,
         }
@@ -184,7 +182,6 @@ class LendsmartClient:
             body = json.dumps(data)
 
         response = method(url, headers=headers, data=body)
-
         warning = response.headers.get('Warning', None)
         if warning:
             logger.warning('Received warning from server: {}'.format(warning))
@@ -194,10 +191,9 @@ class LendsmartClient:
             error_msg = '{}: '.format(response.status_code)
             try:
                 j = response.json()
-                if 'errors' in j.keys():
-                    for e in j['errors']:
-                        error_msg += '{}; '.format(e['reason']) \
-                                if 'reason' in e.keys() else ''
+                if 'message' in j.keys():
+                    error_msg += '{}; {} '.format(j['reason'], j['message'])
+
             except:
                 pass
             raise ApiError(error_msg, status=response.status_code, json=j)
@@ -205,7 +201,7 @@ class LendsmartClient:
         if response.status_code != 204:
             j = response.json()
         else:
-            j = None # handle no response body
+            j = None  # handle no response body
 
         return j
 
@@ -213,17 +209,18 @@ class LendsmartClient:
         response_json = self.get(endpoint, model=model, filters=filters)
 
         if not "data" in response_json:
-            raise UnexpectedResponseError("Problem with response!", json=response_json)
+            raise UnexpectedResponseError(
+                "Problem with response!", json=response_json)
 
         if 'pages' in response_json:
             formatted_endpoint = endpoint
             if model:
                 formatted_endpoint = formatted_endpoint.format(**vars(model))
             return PaginatedList.make_paginated_list(response_json, self, cls,
-                    parent_id=parent_id, page_url=formatted_endpoint[1:],
-                    filters=filters)
+                                                     parent_id=parent_id, page_url=formatted_endpoint[1:],
+                                                     filters=filters)
         return PaginatedList.make_list(response_json["data"], self, cls,
-                parent_id=parent_id)
+                                       parent_id=parent_id)
 
     def get(self, *args, **kwargs):
         return self._api_call(*args, method=self.session.get, **kwargs)
@@ -240,7 +237,7 @@ class LendsmartClient:
     def documents(self, *filters):
         """
         Retrieves a list of available Documents
-        Document available to the acting user. 
+        Document available to the acting user.
 
         :returns: A list of available Documents.
         :rtype: PaginatedList of Document
@@ -250,26 +247,35 @@ class LendsmartClient:
     def document_create(self, disk, label=None, description=None):
         """
         Creates a new Document
- 
+
         :returns: The new Document.
         :rtype: Document
         """
-        params = {
-            "disk_id": disk.id if issubclass(type(disk), Base) else disk,
-        }
 
         if label is not None:
-            params["label"] = label
+            params = {
+                "object_meta": {
+                    "name": label["name"],
+                    "account": label["account"]
+                },
+                "document_name": label["document_name"],
+                "location": label["location"],
+                "represents_schema": label["represents_schema"],
+                "status": {
+                    "phase": "Pending",
+                    "message":"",
+                    "reason":"","conditions":[]
+                }
+            }
 
         if description is not None:
             params["description"] = description
 
+        print("Params:", params)
         result = self.post('/documents', data=params)
 
         if not 'id' in result:
             raise UnexpectedResponseError('Unexpected response when creating an '
                                           'Document {}'.format(disk))
 
-        return Image(self, result['id'], result)
-
-
+        return Document(self, result['id'], result)

@@ -73,7 +73,7 @@ class MethodMock:
         Begins the method mocking
         """
         self.patch = patch(
-            'lendsmart.lendsmart_client.requests.Session.'+self.method,
+            'lendsmart_api.lendsmart_client.requests.Session.'+self.method,
             return_value=MockResponse(200, self.return_dct)
         )
         self.mock = self.patch.start()
@@ -130,7 +130,7 @@ class ClientBaseCase(TestCase):
     def setUp(self):
         self.client = LendsmartClient('testing', base_url='/')
 
-        self.get_patch = patch('lendsmart.lendsmart_client.requests.Session.get',
+        self.get_patch = patch('lendsmart_api.lendsmart_client.requests.Session.get',
                 side_effect=mock_get)
         self.get_patch.start()
 
