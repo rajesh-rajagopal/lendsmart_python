@@ -1,21 +1,13 @@
 language: python
 python:
-  - "2.7"
-  - "3.4"
-  - "3.5"
-  - "3.6"
-services:
-  - docker
+    - "2.7"
+    - "3.4"
+    - "3.5"
+    - "3.6"
 install:
-  - pip install virtualenv --upgrade
-  - make install
-  - make test-install
+    - python setup.py install
+    - pip install pylint pytest coverage
 script:
-  - make test
-deploy:
-  provider: script
-  script: make docker-build && make docker-push
-  skip_cleanup: true
-  on:
-    tags: true
-    python: "3.6"
+    - coverage run --source lensmart_api -m pytest
+    - coverage report
+    - pylint lensmart_api

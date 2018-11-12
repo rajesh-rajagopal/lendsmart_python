@@ -1,58 +1,99 @@
-from __future__ import with_statement
+#!/usr/bin/env python3
+"""
+A setuptools based setup module
+
+Based on a template here:
+https://github.com/pypa/sampleproject/blob/master/setup.py
+"""
+
+# Always prefer setuptools over distutils
 import sys
-from setuptools import setup, find_packages
+# To use a consistent encoding
+from codecs import open
+from os import path
+from unittest import TestLoader
 
-__version__ = None
-with open('lendsmart/__init__.py') as f:
-    exec(f.read())
+from setuptools import find_packages, setup
 
-with open('README.rst') as f:
+here = path.abspath(path.dirname(__file__))
+
+def get_test_suite():
+    test_loader = TestLoader()
+    return test_loader.discover('test', pattern='*_test.py')
+
+# Get the long description from the README file
+with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
-# To install the lendsmart-python library, open a Terminal shell, then run this
-# file by typing:
-#
-# python setup.py install
-#
-# You need to have the setuptools module installed. Try reading the setuptools
-# documentation: http://pypi.python.org/pypi/setuptools
-
 setup(
-    name = "lendsmart",
-    version = __version__,
-    description = "Lendsmart API client ",
-    author = "Lendsmart",
-    author_email = "info@lendsmart.com",
-    url = "https://github.com/lendsmart/lendsmart_python/",
-    keywords = ["lendsmart"],
-    install_requires = [
-        "six",
-        "pytz",
-        "PyJWT >= 1.4.2",
+    name='lendsmart_api',
+
+    # Versions should comply with PEP440.  For a discussion on single-sourcing
+    # the version across setup.py and the project code, see
+    # https://packaging.python.org/en/latest/single_source_version.html
+    version='2.0.0',
+
+    description='The official python SDK for LendSmart API v1',
+    long_description=long_description,
+
+    # The project's main homepage.
+    url='https://github.com/lendsmart/lendsmart_python',
+
+    # Author details
+    author='Smart Labs',
+    author_email='infos@lendsmart.ai',
+
+    # Choose your license
+    license='MIT',
+
+    # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
+    classifiers=[
+        # How mature is this project? Common values are
+        #   3 - Alpha
+        #   4 - Beta
+        #   5 - Production/Stable
+        # This is staying in sync with the api's status
+        'Development Status :: 1 - Beta',
+
+        # Indicate who your project is intended for
+        'Intended Audience :: Developers',
+        'Topic :: Software Development :: Libraries',
+
+        # Pick your license as you wish (should match "license" above)
+        'License :: OSI Approved :: MIT License',
+
+        # Specify the Python versions you support here. In particular, ensure
+        # that you indicate whether you support Python 2, Python 3 or both.
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
     ],
-    extras_require={
-        ':python_version<"3.0"': [
-            "requests[security] >= 2.0.0",
-        ],
-        ':python_version>="3.0"': [
-            "requests >= 2.0.0",
-            "pysocks",
-        ],
-    },
-    packages = find_packages(exclude=['tests', 'tests.*']),
-    include_package_data=True,
-    classifiers = [
-        "Development Status :: 5 - Production/Stable",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-        "Topic :: Communications :: Telephony",
-        ],
-    long_description = long_description
+
+    # What does your project relate to?
+    keywords='prediction ai lendsmart',
+
+    # You can just specify the packages manually here if your project is
+    # simple. Or you can use find_packages().
+    packages=find_packages(exclude=['contrib', 'tests']),
+
+    # What do we need for this to run
+    install_requires=[
+        "future",
+        "requests",
+    ] if sys.version_info >= (3, 4) else [
+        "future",
+        "requests",
+        "enum34",
+    ],
+
+    tests_require=[
+        "mock",
+    ],
+
+    test_suite = 'setup.get_test_suite'
 )

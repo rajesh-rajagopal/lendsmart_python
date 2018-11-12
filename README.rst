@@ -1,110 +1,79 @@
-lendsmart_python
-=============
+lendsmart_api
+===========
 
-.. image:: https://secure.travis-ci.org/lendsmart/lendsmart-python.png?branch=master
-   :target: http://travis-ci.org/lendsmart/lendsmart-python
-.. image:: https://img.shields.io/pypi/v/lendsmart.svg
-   :target: https://pypi.python.org/pypi/lendsmart
-.. image:: https://img.shields.io/pypi/pyversions/lendsmart.svg
-   :target: https://pypi.python.org/pypi/lendsmart
+.. highlight:: python
 
+The official python library for the `Lendsmart API v1`_ in python.
+
+**This library is currently in beta.**
+
+
+.. image:: https://travis-ci.org/linode/lendsmart_api-python.svg?branch=master
+    :target: https://travis-ci.org/linode/lendsmart_api-python
+
+.. image:: https://badge.fury.io/py/lendsmart-api.svg
+   :target: https://badge.fury.io/py/lendsmart-api
 
 
 Installation
 ------------
-
-Install from PyPi using
-`pip <http://www.pip-installer.org/en/latest/>`__, a package manager for
-Python.
-
 ::
 
-   pip install lendsmart
+    pip install lendsmart_api
 
-Don't have pip installed? Try installing it, by running this from the
-command line:
 
-::
+Building from Source
+--------------------
 
-   $ curl https://raw.github.com/pypa/pip/master/contrib/get-pip.py | python
+To build and install this package:
 
-Or, you can `download the source code
-(ZIP) <https://github.com/lendsmart/lendsmart-python/zipball/master>`__ for
-``lendsmart-python``, and then run:
+- Clone this repository
+- ``./setup.py install``
 
-::
-
-   python setup.py install
-
-You may need to run the above commands with ``sudo``.
+Usage
+-----
 
 
 
-Getting Started
-
----------------
-
-Getting started with the LendSmart API couldn't be easier. Create a
-``Client`` and you're ready to go.
-
-API Credentials
-~~~~~~~~~~~~~~~
-
-The ``LendSmart`` needs your LendSmart credentials. You can either pass these
-directly to the constructor (see the code below) or via environment
-variables.
-
-.. code:: python
-
-   from lendsmart.rest import Client
-
-   account = "ACXXXXXXXXXXXXXXXXX"
-   token = "YYYYYYYYYYYYYYYYYY"
-   client = Client(account, token)
-
-Alternately, a ``Client`` constructor without these parameters will look
-for ``LENDSMART_ACCOUNT_SID`` and ``LENDSMART_AUTH_TOKEN`` variables inside
-the current environment.
-
-We suggest storing your credentials as environment variables. Why?
-You'll never have to worry about committing your credentials and
-accidentally posting them somewhere public.
-
-.. code:: python
-
-   from lend.rest import Client
-   client = Client()
 
 
-Make Account
-~~~~~~~~~~~~~~
+Contributing
+============
 
-.. code:: python
+Tests
+-----
 
-   from lendsmart.rest import Client
+Tests live in the ``tests`` directory.  When invoking tests, make sure you are
+in the root directory of this project.  To run the full suite across all
+supported python versions, use tox_:
 
-   account = "ACXXXXXXXXXXXXXXXXX"
-   token = "YYYYYYYYYYYYYYYYYY"
-   client = Client(account, token)
+.. code-block:: shell
 
-   acount = client.accounts.create(email="info@lendsmart.com",
-                              password="team#4lendsmart")
-                              
-   print(acount.token)
+   tox
 
+Running tox also runs pylint and coverage reports.
 
-Make Document
-~~~~~~~~~~~~~
+The test suite uses fixtures stored as JSON in ``test/fixtures``.  These files
+contain sanitized JSON responses from the API - the file name is the URL called
+to produce the response, replacing any slashes with underscores.
 
-.. code:: python
+Test classes should extend ``test.base.ClientBaseCase``.  This provides them
+with ``self.client``, a ``LinodeClient`` object that is set up to work with
+tests.  Importantly, any GET request made by this object will be mocked to
+retrieve data from the test fixtures.  This includes lazy-loaded objects using
+this client (and by extension related models).
 
-   from lendsmart.rest import Client
+When testing against requests other than GET requests, ``self.mock_post`` (and
+equivalent methods for other HTTP verbs) can be used in a ``with`` block to
+mock out the intended request type.  These functions accept the relative path
+from the api base url that should be returned, for example::
 
-   account = "ACXXXXXXXXXXXXXXXXX"
-   token = "YYYYYYYYYYYYYYYYYY"
-   client = Client(account, token)
+   # this should return the result of GET /linode/instances/123
+   with self.mock_post('/linode/instances/123'):
+     linode = self.client.linode.instance_create('g6-standard-2', 'us-east')
+     self.assertEqual(linode.id, 123) # passes
 
-   message = client.document.create(to="+12316851234", from_="+15555555555",
-                                    body="Hello there!")
+.. _tox: http://tox.readthedocs.io
+
 
 
