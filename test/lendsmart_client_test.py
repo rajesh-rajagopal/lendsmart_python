@@ -95,6 +95,3 @@ class PredictionGroupTest(ClientBaseCase):
         for result, (expected_id, expected_label) in zip(r, expected_results):
             self.assertEqual(result.id, expected_id)
             self.assertEqual(result.label, expected_label)
-
-
-
