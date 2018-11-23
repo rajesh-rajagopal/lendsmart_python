@@ -50,7 +50,7 @@ class PredictionGroup(Group):
         if not 'id' in result:
             raise UnexpectedResponseError('Unexpected response when creating Longivew '
                                           'Client!', json=result)
-        print("chunck result :",result)
+        print("client result :", result)
 
         c = PredictionChunk(self.client, result['id'], result)
         return c
@@ -287,8 +287,9 @@ class LendsmartClient:
                 "represents_schema": label["represents_schema"],
                 "status": {
                     "phase": "Pending",
-                    "message":"",
-                    "reason":"","conditions":[]
+                    "message": "",
+                    "reason": "",
+                    "conditions": []
                 }
             }
 
