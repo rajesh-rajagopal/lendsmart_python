@@ -96,6 +96,5 @@ setup(
     tests_require=[
         "mock",
     ],
-
-    test_suite = 'setup.get_test_suite'
+    test_suite= 'setup.get_test_suite'
 )
