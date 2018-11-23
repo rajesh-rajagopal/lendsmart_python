@@ -8,7 +8,7 @@ import pkg_resources
 import requests
 
 from lendsmart_api.errors import ApiError, UnexpectedResponseError
-from lendsmart_api.objects import PredictionChunk, PredictionWorkflow, Base
+from lendsmart_api.objects import PredictionChunk, PredictionWorkflow, Base, LoanApplication
 from lendsmart_api.objects.filtering import Filter
 
 from .common import load_and_validate_keys, SSH_KEY_TYPES
@@ -83,6 +83,30 @@ class PredictionGroup(Group):
 
         c = PredictionWorkflow(self.client, result['id'], result)
         return c
+
+    def loan_application_create(self, data=None):
+        """
+        Creates a new PredictionWorkflow, with given inputs.
+
+        :param label: The label for the new client.  If None, a default label based
+            on the new client's ID will be used.
+
+        :returns: A new PredictionWorkflow
+
+        :raises ApiError: If a non-200 status code is returned
+        :raises UnexpectedResponseError: If the returned data from the api does
+            not look as expected.
+        """
+        result = self.client.post('/loan_documents', data=data)
+
+        if not 'id' in result:
+            raise UnexpectedResponseError('Unexpected response when creating Longivew '
+                                          'Client!', json=result)
+
+        c = LoanApplication(self.client, result['id'], result)
+        return c
+
+
 
 
 class LendsmartClient:
