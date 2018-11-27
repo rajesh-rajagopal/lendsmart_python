@@ -110,13 +110,13 @@ class PredictionGroup(Group):
 
 
 class LendsmartClient:
-    def __init__(self, token, base_url="https://api.lendsmart.ai/api/v1", user_agent=None):
+    def __init__(self, service_account, base_url="https://api.lendsmart.ai/api/v1", user_agent=None):
         """
         The main interface to the Lendsmart API.
 
-        :param token: The authentication token to use for communication with the
-                      API.  Can be either a Personal Access Token or an OAuth Token.
-        :type token: str
+        :param service_account: The service_account is used for communication with the
+                      API.  Can be either a Lambda servie account or other.
+        :type service_account: ServiceAccount
         :param base_url: The base URL for API requests.  Generally, you shouldn't
                          change this.
         :type base_url: str
@@ -129,7 +129,7 @@ class LendsmartClient:
         """
         self.base_url = base_url
         self._add_user_agent = user_agent
-        self.token = token
+        self.service_account = service_account
         self.session = requests.Session()
 
         #: Access information related to the Prediction service - see
@@ -183,8 +183,8 @@ class LendsmartClient:
         Makes a call to the lendsmart api.  Data should only be given if the method is
         POST or PUT, and should be a dictionary
         """
-        if not self.token:
-            raise RuntimeError("You do not have an API token!")
+        if not self.service_account:
+            raise RuntimeError("You do not have an API service account!")
 
         if not method:
             raise ValueError("Method is required for API calls!")
@@ -193,9 +193,10 @@ class LendsmartClient:
             endpoint = endpoint.format(**vars(model))
         url = '{}{}'.format(self.base_url, endpoint)
         headers = {
-            # 'Authorization': "Bearer {}".format(self.token),
+            'Authorization': "Bearer {}".format(self.service_account.bearer_token().decode("utf-8")),
             'Content-Type': 'application/json',
             'User-Agent': self._user_agent,
+            'X-AUTH-LENDSMART-SERVICE-ACCOUNT-NAME': self.service_account.CONST_SERVICE_ACCOUNT_NAME,
         }
 
         if filters:

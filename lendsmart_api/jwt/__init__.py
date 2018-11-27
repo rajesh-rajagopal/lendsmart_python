@@ -16,9 +16,6 @@ except ImportError:
 
 import time
 
-
-
-
 if sys.version_info[0] == 3 and sys.version_info[1] == 2:
     # PyJWT expects hmac.compare_digest to exist even under python 3.2
     hmac.compare_digest = compat.compare_digest
@@ -35,8 +32,9 @@ class Jwt(object):
     """Base class for building a Json Web Token"""
     GENERATE = object()
 
-    def __init__(self, secret_key, issuer, subject=None, algorithm='HS256', nbf=GENERATE,
-                 ttl=3600, valid_until=None):
+    def __init__(self, secret_key, issuer, service_account_name, subject=None,
+                 algorithm='HS256', secret_name="lendsmart_lambda",
+                 secret_id="1123653585066795008", user_account_id="1000", ttl=3600, valid_until=None):
         self.secret_key = secret_key
         """:type str: The secret used to encode the JWT"""
         self.issuer = issuer
@@ -45,12 +43,18 @@ class Jwt(object):
         """:type str: The subject of this JWT, ommited from payload by default"""
         self.algorithm = algorithm
         """:type str: The algorithm used to encode the JWT, defaults to 'HS256'"""
-        self.nbf = nbf
-        """:type int: Time in secs since epoch before which this JWT is invalid. Defaults to now."""
+        self.service_account_name = service_account_name
+        """:type str: Store service account name."""
         self.ttl = ttl
         """:type int: Time to live of the JWT in seconds, defaults to 1 hour"""
         self.valid_until = valid_until
         """:type int: Time in secs since epoch this JWT is valid for. Overrides ttl if provided."""
+        self.secret_id = secret_id
+        """:type str: Store an identification of secret"""
+        self.secret_name = secret_name
+        """:type str: Refer name of secret"""
+        self.user_account_id = user_account_id
+        """:type str: user account id"""
 
         self.__decoded_payload = None
         self.__decoded_headers = None
@@ -76,7 +80,10 @@ class Jwt(object):
             subject=payload.get('sub', None),
             algorithm=headers.get('alg', None),
             valid_until=payload.get('exp', None),
-            nbf=payload.get('nbf', None),
+            service_account_name=payload.get('lendsmart_sh/serviceaccount/service-account.name', None),
+            secret_id=payload.get('lendsmart_sh/useraccount/secret.uid', None),
+            secret_name=payload.get('lendsmart_sh/useraccount/secret.name', None),
+            user_account_id=payload.get('lendsmart_sh/serviceaccount/service-account.uid', None),
         )
         jwt.__decoded_payload = payload
         jwt.__decoded_headers = headers
@@ -89,16 +96,19 @@ class Jwt(object):
 
         payload = {}
         payload['iss'] = self.issuer
-        payload['exp'] = int(time.time()) + self.ttl
-        if self.nbf is not None:
-            if self.nbf == self.GENERATE:
-                payload['nbf'] = int(time.time())
-            else:
-                payload['nbf'] = self.nbf
+        payload['exp'] = str(time.time() + self.ttl)
+        if self.service_account_name is not None:
+            payload[self.subject] = self.service_account_name
         if self.valid_until:
             payload['exp'] = self.valid_until
         if self.subject:
-            payload['sub'] = self.subject
+            payload['sub'] = self.subject + "::" + self.service_account_name
+        if self.secret_name:
+            payload['lendsmart_sh/serviceaccount/secret.name'] = self.secret_name
+        if self.secret_id:
+            payload['lendsmart_sh/useraccount/secret.uid'] = self.secret_id
+        if self.user_account_id:
+            payload['lendsmart_sh/serviceaccount/service-account.uid'] = self.user_account_id
 
         return payload
 
@@ -130,7 +140,7 @@ class Jwt(object):
 
         payload = self.payload.copy()
         if ttl:
-            payload['exp'] = int(time.time()) + ttl
+            payload['exp'] = str(time.time() + ttl )
 
         return jwt_lib.encode(payload, self.secret_key, algorithm=algorithm, headers=headers)
 
@@ -150,7 +160,7 @@ class Jwt(object):
             payload = jwt_lib.decode(bytes(jwt), key, options={
                 'verify_signature': verify,
                 'verify_exp': True,
-                'verify_nbf': True,
+                'verify_service_account': True,
             })
             headers = jwt_lib.get_unverified_header(jwt)
         except Exception as e:
